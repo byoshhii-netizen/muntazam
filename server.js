@@ -91,6 +91,13 @@ app.patch('/api/devices/:id', requireAuth, async (req, res) => {
   res.json(serializeDevice(rows[0]));
 });
 
+app.delete('/api/devices/:id', requireAuth, async (req, res) => {
+  const { rows } = await pool.query('DELETE FROM devices WHERE id = $1 RETURNING name', [req.params.id]);
+  if (!rows[0]) return res.status(404).json({ error: 'Cihaz bulunamadı.' });
+  await pool.query('INSERT INTO audit_logs (event, detail) VALUES ($1, $2)', ['Cihaz silindi', rows[0].name]);
+  res.status(204).end();
+});
+
 app.post('/api/devices/:id/commands', requireAuth, async (req, res) => {
   const commands = new Set(['lock', 'restart', 'safe-mode']);
   if (!commands.has(req.body?.command)) return res.status(400).json({ error: 'Geçersiz komut.' });

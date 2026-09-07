@@ -50,15 +50,6 @@ export async function initDatabase() {
     VALUES ('admin_password_hash', $1)
     ON CONFLICT (key) DO NOTHING
   `, [hashPassword('123123')]);
-  const { rows } = await pool.query('SELECT COUNT(*)::int AS count FROM devices');
-  if (rows[0].count === 0) {
-    await pool.query(`
-      INSERT INTO devices (name, model, status, install_status, last_seen, address, protected, screen_available, pairing_key)
-      VALUES
-        ('Çalışma İstasyonu', 'Windows Desktop', 'online', 'Kurulum tamamlandı', 'Az önce', '192.168.1.24', TRUE, TRUE, NULL),
-        ('Ders Bilgisayarı', 'Windows Laptop', 'offline', 'Kurulum bekliyor', '2 saat önce', '192.168.1.31', FALSE, FALSE, NULL)
-    `);
-  }
 }
 
 export function hashPassword(password) {
